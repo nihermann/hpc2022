@@ -13,7 +13,7 @@ void print_fraction_array(fraction frac_array[], int n);
 fraction square_fraction(fraction frac);
 
 //TODO: add function declaration for function 3
-void square_fraction_inline(fraction & frac);
+void square_fraction_inplace(fraction & frac);
 
 double fraction2double(fraction frac);
 

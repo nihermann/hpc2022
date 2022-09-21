@@ -67,8 +67,8 @@ void reduce_fraction_inplace(fraction & frac)
     frac.denom /= divisor;
     //TODO: add short comment to explain which of the gcd() functions your code is calling
 
-    // at first glance the gcd overload with the fraction struct as argument (line 51), however,
-    // since this overload calls the gcd(int, int) actually both are used/called.
+    // the overload with the fraction struct as argument (line 51) will be called, since the other overload
+    // with two int args has a non-matching function signature.
 }
 
 fraction add_fractions(fraction frac1, fraction frac2)

@@ -38,7 +38,7 @@ static void test23467(int argc, char* argv[])
     // 3 square frac inplace
     printf("\nTesting square_fraction_inline with: ");
     print_fraction(f);
-    square_fraction_inline(f);
+    square_fraction_inplace(f);
     printf("Resulting fraction: ");
     print_fraction(f);
 
