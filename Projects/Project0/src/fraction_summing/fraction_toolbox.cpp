@@ -28,7 +28,7 @@ fraction square_fraction(fraction frac)
 }
 
 //TODO: implement function 3
-void square_fraction_inline(fraction & frac)
+void square_fraction_inplace(fraction & frac)
 {
     frac.num *= frac.num;
     frac.denom *= frac.denom;
@@ -49,7 +49,14 @@ int gcd(int a, int b)
 
 //TODO: implement function 6
 int gcd(fraction frac) {
-    return gcd(frac.num, frac.denom);
+    int a = frac.num;
+    int b = frac.denom;
+    while (b != 0){
+        int t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
 }
 
 void reduce_fraction_inplace(fraction & frac)

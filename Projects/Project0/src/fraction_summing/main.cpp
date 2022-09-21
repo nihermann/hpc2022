@@ -45,15 +45,15 @@ static void test23467(int argc, char* argv[])
     // 4 frac to double
     printf("\nTesting fraction2double with: ");
     print_fraction(f);
-    cout<<"Resulting double: " + to_string(fraction2double(f));
+    cout<<"Resulting double: " << fraction2double(f) << endl;
 
     // 6 gcd overload
-    printf("\n\nTesting gcd with: ");
+    printf("\nTesting gcd with: ");
     print_fraction(f);
-    cout<<"Resulting gcd is: " + to_string(gcd(f));
+    cout<<"Resulting gcd is: " << gcd(f) << endl;
 
     // 7 reduce frac inplace
-    printf("\n\nTesting reduce_fraction_inplace with: ");
+    printf("\nTesting reduce_fraction_inplace with: ");
     print_fraction(f);
     printf("Resulting reduced fraction: ");
     reduce_fraction_inplace(f);
@@ -80,7 +80,7 @@ static void test_array_functions(int n)
 
     cout<<"Sum as fraction: ";
     print_fraction(sum_fraction_array(fracs, n));
-    cout<<"Sum of fractions: " + to_string(sum_fraction_array_approx(fracs, n))<<endl;
+    cout<<"Sum of fractions: " << sum_fraction_array_approx(fracs, n) << endl;
     //TODO: find n for which sum function breaks. Explain what is happening.
     /*
      * After XXX the integer will be larger than an 32-integer can represent. When this number gets exceeded
