@@ -83,9 +83,10 @@ static void test_array_functions(int n)
     cout<<"Sum of fractions: " << sum_fraction_array_approx(fracs, n) << endl;
     //TODO: find n for which sum function breaks. Explain what is happening.
     /*
-     * After XXX the integer will be larger than an 32-integer can represent. When this number gets exceeded
-     * the bits will overflow and the intentionally large integer will suddenly start over at the smallest
-     * possible number representable with an integer (-2**31).
+     * After n=1290 the common denominator will be larger than the biggest representable 32bit-integer. When this number gets exceeded
+     * the bits will overflow and the large integer will suddenly start over at the smallest
+     * possible number representable with an 32bit-integer (-2**31). For the approximate sum function it doesn't happen,
+     * since the numbers are stored as floating point numbers instead they will never overflow since the series is converging to 1.
      */
 }
 
@@ -98,7 +99,7 @@ static void test_toolbox(int argc, char* argv[])
     test5();
 
     cout << "\n==========  test_array_functions  ========= " << endl;
-    int n = 20000;
+    int n = 1289; // breaks at 1290
     test_array_functions(n);
 }
 
