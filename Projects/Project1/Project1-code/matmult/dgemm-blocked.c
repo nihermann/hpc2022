@@ -12,55 +12,46 @@ MKLROOT = /opt/intel/composer_xe_2013.1.117/mkl
 LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKLROOT)/lib/intel64/libmkl_sequential.a $(MKLROOT)/lib/intel64/libmkl_core.a -Wl,--end-group -lpthread -lm
 
 */
-#include "stdio.h"
+#include <stdlib.h>
 
 const char* dgemm_desc = "Naive, three-loop dgemm.";
 
-int min(int a, int b)
+const int min(const int a, const int b)
 {
     return a < b? a : b;
 }
 
-void transpose(int n, double* M)
-{
-//    double* transposed = double[n*n];
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            M[i+j*n] = M[j+i*n];
-        }
-    }
-//    return transposed;
-}
 
 /* This routine performs a dgemm operation
  *  C := C + A * B
  * where A, B, and C are lda-by-lda matrices stored in column-major format.
  * On exit, A and B maintain their input values. */    
-void square_dgemm (int n, double* A, double* B, double* C, int b)
+void square_dgemm (const int n, double* A, double* B, double* C, const int block_size)
 {
     // TODO: Implement the blocking optimization
-    int block_size = b;
-    int num_blocks = n / block_size;
 
-    double AT[n*n];
+    double* AT = (double*) malloc(n*n*sizeof(double));
     for (int i = 0; i < n; ++i) {
+        const int in = n*i;
         for (int j = 0; j < n; ++j) {
-            AT[i+j*n] = A[j+i*n];
+            AT[i+j*n] = A[j+in];
         }
     }
 
-    for (int ii = 1; ii <= num_blocks + 1; ++ii) {
-        for (int jj = 1; jj <= num_blocks + 1; ++jj) {
-            for (int kk = 1; kk <= num_blocks + 1; ++kk) {
-                int i_limit = min(ii * block_size, n);
-                for (int i = (ii - 1) * block_size; i < i_limit; ++i) {
-                    int j_limit = min(jj * block_size, n);
-                    for (int j = (jj - 1) * block_size; j < j_limit; ++j) {
-                        int in = i*n;
-                        int jn = j*n;
+
+    for (int ii = 0; ii <= n; ii += block_size) {
+        for (int jj = 0; jj <= n; jj += block_size) {
+            for (int kk = 0; kk <= n; kk += block_size) {
+
+                const int i_limit = min(ii + block_size, n);
+                for (int i = ii; i < i_limit; ++i) {
+                    const int j_limit = min(jj + block_size, n);
+                    for (int j = jj; j < j_limit; ++j) {
+                        const int in = i*n;
+                        const int jn = j*n;
                         double cij = C[i+jn];
-                        int k_limit = min(kk * block_size, n);
-                        for (int k = (kk - 1) * block_size; k < k_limit; ++k) {
+                        const int k_limit = min(kk + block_size, n);
+                        for (int k = kk; k < k_limit; ++k) {
                             cij += AT[k+in] * B[k+jn];
                         }
                         C[i+jn] = cij;
