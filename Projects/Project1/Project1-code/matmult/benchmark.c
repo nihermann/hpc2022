@@ -33,7 +33,8 @@ void reference_dgemm (int N, double ALPHA, double* A, double* B, double* C)
 
 /* Your function must have the following signature: */
 extern const char* dgemm_desc;
-extern void square_dgemm (int, double*, double*, double*, int);
+extern void square_dgemm (int, double*, double*, double*);
+//extern void square_dgemm (int, double*, double*, double*, int);
 
 double wall_time ()
 {
@@ -71,11 +72,12 @@ int main (int argc, char **argv)
 {
 //    double best = 0;
 //    int maxi = 0;
-    int b = 34;
+//    int b = 34;
 //    for (b = 2; b <= 36; ++b) {
 
 
-        printf("#Description:\t%s %d block size\n\n", dgemm_desc, b);
+    printf("#Description:\t%s %d block size\n\n", dgemm_desc);
+//    printf("#Description:\t%s %d block size\n\n", dgemm_desc, b);
 
         /* Test sizes should highlight performance dips at multiples of certain powers-of-two */
 
@@ -125,7 +127,8 @@ int main (int argc, char **argv)
                 /* Benchmark n_iterations runs of square_dgemm */
                 seconds = -wall_time();
                 for (int it = 0; it < n_iterations; ++it)
-                    square_dgemm(n, A, B, C, b);
+                    square_dgemm(n, A, B, C);
+//                    square_dgemm(n, A, B, C, b);
                 seconds += wall_time();
 
                 /*  compute Gflop/s rate */
@@ -142,7 +145,8 @@ int main (int argc, char **argv)
 
             /* C := A * B, computed with square_dgemm */
             memset(C, 0, n * n * sizeof(double));
-            square_dgemm(n, A, B, C, b);
+            square_dgemm(n, A, B, C);
+//            square_dgemm(n, A, B, C, b);
 
             /* Do not explicitly check that A and B were unmodified on square_dgemm exit
              *  - if they were, the following will most likely detect it:
