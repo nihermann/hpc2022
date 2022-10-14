@@ -16,42 +16,59 @@ LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKL
 
 const char* dgemm_desc = "Naive, three-loop dgemm.";
 
-const int min(const int a, const int b)
+/**
+ * Returns the min value of a and b.
+ * @param a
+ * @param b
+ * @return min of (a, b)
+ */
+int min(int a,  int b)
 {
     return a < b? a : b;
 }
 
-
-/* This routine performs a dgemm operation
- *  C := C + A * B
- * where A, B, and C are lda-by-lda matrices stored in column-major format.
- * On exit, A and B maintain their input values. */    
-void square_dgemm (const int n, double* A, double* B, double* C, const int block_size)
-{
-    // TODO: Implement the blocking optimization
-
-    double* AT = (double*) malloc(n*n*sizeof(double));
+/**
+ * Transposes square matrix A.
+ * @param n dim of the matrix.
+ * @param A Matrix to transpose.
+ * @param AT Resulting matrix.
+ */
+void transpose(int n, double* A, double* AT){
     for (int i = 0; i < n; ++i) {
-        const int in = n*i;
+        int in = n*i;
         for (int j = 0; j < n; ++j) {
             AT[i+j*n] = A[j+in];
         }
     }
+}
 
+/* This routine performs a dgemm operation
+ *  C := C + A * B
+ * where A, B, and C are lda-by-lda matrices stored in column-major format.
+ * On exit, A and B maintain their input values. */
+void square_dgemm(int n, double* A, double* B, double* C, int block_size)
+{
+    // allocate a contiguous block of memory for the transposed matrix A
+    double* AT = (double*) malloc(n*n*sizeof(double));
+    transpose(n, A, AT); // transpose A for spatial locality
 
-    for (int ii = 0; ii <= n; ii += block_size) {
-        for (int jj = 0; jj <= n; jj += block_size) {
-            for (int kk = 0; kk <= n; kk += block_size) {
-
-                const int i_limit = min(ii + block_size, n);
-                for (int i = ii; i < i_limit; ++i) {
-                    const int j_limit = min(jj + block_size, n);
-                    for (int j = jj; j < j_limit; ++j) {
-                        const int in = i*n;
-                        const int jn = j*n;
+    // Iterate through the blocks
+    for (int offset_i = 0; offset_i <= n; offset_i += block_size) {
+        for (int offset_j = 0; offset_j <= n; offset_j += block_size) {
+            for (int offset_k = 0; offset_k <= n; offset_k += block_size) {
+                // Perform matrix multiplication within the blocks.
+                // cache limit of the for loop.
+                int i_limit = min(offset_i + block_size, n);
+                for (int i = offset_i; i < i_limit; ++i) {
+                    int j_limit = min(offset_j + block_size, n);
+                    for (int j = offset_j; j < j_limit; ++j) {
+                        // cache more computations...
+                        int in = i*n;
+                        int jn = j*n;
                         double cij = C[i+jn];
-                        const int k_limit = min(kk + block_size, n);
-                        for (int k = kk; k < k_limit; ++k) {
+
+                        int k_limit = min(offset_k + block_size, n);
+                        for (int k = offset_k; k < k_limit; ++k) {
                             cij += AT[k+in] * B[k+jn];
                         }
                         C[i+jn] = cij;
@@ -62,27 +79,3 @@ void square_dgemm (const int n, double* A, double* B, double* C, const int block
     }
 }
 
-
-
-//int main(int argc, char **argv)
-//{
-//    double A[] = {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25.};
-//    double B[] = {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25.};
-//    double C[] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
-//    double Cstar[] = {215.,  230.,  245.,  260.,  275.,
-//                     490.,  530.,  570.,  610.,  650.,
-//                     765.,  830.,  895.,  960., 1025.,
-//                     1040., 1130., 1220., 1310., 1400.,
-//                     1315., 1430., 1545., 1660., 1775.};
-//
-//    square_dgemm(5, A, B, C);
-//
-//    int same = 0;
-//    for (int i = 0; i < 25; ++i) {
-//        printf("is %f should be %f\n", C[i], Cstar[i]);
-//        same += Cstar[i] == C[i];
-//    }
-//    printf("%d correct", same);
-//
-//
-//}
