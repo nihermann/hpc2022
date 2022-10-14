@@ -8,7 +8,7 @@
 
 # load modules
 if command -v module 1>/dev/null 2>&1; then
-   module load gcc/10.1.0 intel-mkl/2020.1.217-gcc-10.1.0-qsctnr6 gnuplot likewid
+   module load gcc/10.1.0 intel-mkl/2020.1.217-gcc-10.1.0-qsctnr6 gnuplot likwid
 fi
 
 export OMP_NUM_THREADS=1
