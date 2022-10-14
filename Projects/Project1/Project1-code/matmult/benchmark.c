@@ -76,7 +76,7 @@ int main (int argc, char **argv)
 //    for (b = 2; b <= 36; ++b) {
 
 
-    printf("#Description:\t%s %d block size\n\n", dgemm_desc);
+    printf("#Description:\t%s block size\n\n", dgemm_desc);
 //    printf("#Description:\t%s %d block size\n\n", dgemm_desc, b);
 
         /* Test sizes should highlight performance dips at multiples of certain powers-of-two */
@@ -122,7 +122,8 @@ int main (int argc, char **argv)
             double timeout = 0.1; // "sufficiently long" := at least 1/10 second.
             for (int n_iterations = 1; seconds < timeout; n_iterations *= 2) {
                 /* Warm-up */
-                square_dgemm(n, A, B, C, b);
+                square_dgemm(n, A, B, C);
+//                square_dgemm(n, A, B, C, b);
 
                 /* Benchmark n_iterations runs of square_dgemm */
                 seconds = -wall_time();
