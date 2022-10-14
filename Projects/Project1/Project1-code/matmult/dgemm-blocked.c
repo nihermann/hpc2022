@@ -46,8 +46,9 @@ void transpose(int n, double* A, double* AT){
  *  C := C + A * B
  * where A, B, and C are lda-by-lda matrices stored in column-major format.
  * On exit, A and B maintain their input values. */
-void square_dgemm(int n, double* A, double* B, double* C, int block_size)
+void square_dgemm(int n, double* A, double* B, double* C)
 {
+    int block_size = 34;
     // allocate a contiguous block of memory for the transposed matrix A
     double* AT = (double*) malloc(n*n*sizeof(double));
     transpose(n, A, AT); // transpose A for spatial locality
