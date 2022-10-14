@@ -3,7 +3,7 @@
 #
 
 CC = gcc
-OPT = -O2
+OPT = -Ofast
 CFLAGS = -Wall -std=gnu99 $(OPT)
 LDFLAGS = -Wall
 # librt is needed for clock_gettime
