@@ -69,10 +69,10 @@ void absolute_value (double *p, int n)
 /* The benchmarking program */
 int main (int argc, char **argv)
 {
-//    double best;
+//    double best = 0;
 //    int maxi = 0;
-    int b = 10;
-//    for (b = 2; b <= 100; ++b) {
+    int b = 34;
+//    for (b = 2; b <= 36; ++b) {
 
 
         printf("#Description:\t%s %d block size\n\n", dgemm_desc, b);
