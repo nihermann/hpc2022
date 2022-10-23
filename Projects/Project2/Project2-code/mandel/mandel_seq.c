@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include "math.h"
 
 #include "consts.h"
 #include "pngwriter.h"
@@ -42,7 +43,17 @@ int main(int argc, char **argv) {
             // stop if the number of iterations exceeds the bound MAX_ITERS.
             // TODO
             // >>>>>>>> CODE IS MISSING
+            n = 0;
+            while (n < MAX_ITERS && x < 2 && y < 2){
+                y = 2 * x * y + cy;
+                x = x2 - y2 + cx;
+                // (2 + 3i)^2 = 4 + 2 * 6i - 9;
+                x2 = x*x;
+                y2 = y*y;
 
+                n += 1;
+                nTotalIterationsCount += 1;
+            }
             // <<<<<<<< CODE IS MISSING
             // n indicates if the point belongs to the mandelbrot set
             // plot the number of iterations at point (i, j)
