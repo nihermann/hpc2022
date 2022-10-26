@@ -59,13 +59,11 @@ int main() {
     time_start = wall_time();
         for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
             alpha_parallel = 0.0;
-#pragma omp reduction(+: alpha_parallel)
-    {
+#pragma omp parallel for reduction(+: alpha_parallel)
             for (int i = 0; i < N; i++) {
                 alpha_parallel += a[i] * b[i];
             }
         }
-    }
     double time_red = wall_time() - time_start;
 
     if ((fabs(alpha_parallel - alpha) / fabs(alpha_parallel)) > EPSILON) {
@@ -79,10 +77,15 @@ int main() {
     time_start = wall_time();
     for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
         alpha_parallel = 0.0;
-#pragma omp parallel for
-        for (int i = 0; i < N; i++) {
+#pragma omp parallel
+        {
+            long double temp = 0;
+#pragma omp for
+            for (int i = 0; i < N; i++) {
+                temp += a[i] * b[i];
+            }
 #pragma omp critical
-            alpha_parallel += a[i] * b[i];
+            alpha_parallel += temp;
         }
     }
     double time_critical = wall_time() - time_start;
