@@ -1,6 +1,7 @@
 #include "walltime.h"
 #include <iostream>
 #include <random>
+#include <omp.h>
 
 #define VEC_SIZE 1000000000
 #define BINS 16
@@ -39,16 +40,37 @@ int main() {
     time_start = wall_time();
 
     // TODO Parallelize the histogram computation
-    for (long i = 0; i < VEC_SIZE; ++i) {
+//    int num_threads = omp_get_max_threads();
+//    long copy[num_threads][BINS];
+//    for (int i = 0; i < num_threads; ++i) {
+//        for (int j = 0; j < BINS; ++j) {
+//            copy[i][j] = 0;
+//        }
+//    }
+//#pragma omp parallel
+//    {
+//        int tid = omp_get_thread_num();
+//#pragma omp for
+//        for (long i = 0; i < VEC_SIZE; ++i) {
+//            copy[tid][vec[i]]++;
+//        }
+//    }
+//    for (int i = 0; i < omp_get_max_threads(); ++i) {
+//        for (int j = 0; j < BINS; ++j) {
+//            dist[j] += copy[i][j];
+//        }
+//    }
+#pragma omp parallel for reduction(+: dist)
+    for (int i = 0; i < VEC_SIZE; ++i) {
         dist[vec[i]]++;
     }
     time_end = wall_time();
 
     // Write results
-    for (int i = 0; i < BINS; ++i) {
-        cout << "dist[" << i << "]=" << dist[i] << endl;
-    }
-    cout << "Time: " << time_end - time_start << " sec" << endl;
+//    for (int i = 0; i < BINS; ++i) {
+//        cout << "dist[" << i << "]=" << dist[i] << endl;
+//    }
+    cout << omp_get_max_threads() << "," << time_end - time_start << endl; //"Time: " << time_end - time_start << " sec" << endl;
 
     delete[] vec;
 
