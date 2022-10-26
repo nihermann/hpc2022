@@ -7,13 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define N 1048
+// make it global to declare it threadprivate later. (declaring it as static in main would have worked too.)
+double a[N][N];
+#pragma omp threadprivate(a)
 
 int main(int argc, char *argv[]) {
+  //setenv("OMP_STACKSIZE", "500M", 1); // Not needed anymore
   int nthreads, tid, i, j;
-  double a[N][N];
 
 /* Fork a team of threads with explicit variable scoping */
-#pragma omp parallel shared(nthreads) private(i, j, tid, a)
+#pragma omp parallel shared(nthreads) private(i, j, tid)
   {
 
     /* Obtain/print thread info */

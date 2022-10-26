@@ -56,7 +56,10 @@ int main(int argc, char *argv[]) {
         omp_set_lock(&lockb);
         for (i = 0; i < N; i++)
           b[i] = i * PI;
+        omp_unset_lock(&lockb);
+
         omp_set_lock(&locka);
+        omp_set_lock(&lockb);
         printf("Thread %d adding b[] to a[]\n", tid);
         for (i = 0; i < N; i++)
           a[i] += b[i];
