@@ -19,22 +19,18 @@ unsigned long get_time() {
 int main(int argc, char **argv) {
     png_data *pPng = png_create(IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    double x, y, x2, y2, cx, cy;
-    cy = MIN_Y;
-
     double fDeltaX = (MAX_X - MIN_X) / (double)IMAGE_WIDTH;
     double fDeltaY = (MAX_Y - MIN_Y) / (double)IMAGE_HEIGHT;
-
     long nTotalIterationsCount = 0;
     unsigned long nTimeStart = get_time();
 
-    long i, j, n;
-
-    n = 0;
     // do the calculation
-    for (j = 0; j < IMAGE_HEIGHT; j++) {
-        cx = MIN_X;
-        for (i = 0; i < IMAGE_WIDTH; i++) {
+#pragma omp parallel for collapse(2) schedule(dynamic)
+    for (long j = 0; j < IMAGE_HEIGHT; j++) {
+        for (long i = 0; i < IMAGE_WIDTH; i++) {
+            double x, y, x2, y2, cx, cy;
+            cy = MIN_Y + fDeltaY * j;
+            cx = MIN_X + fDeltaX * i;
             x = cx;
             y = cy;
             x2 = x * x;
@@ -43,24 +39,24 @@ int main(int argc, char **argv) {
             // count the iterations until the orbit leaves the circle |z|=2.
             // stop if the number of iterations exceeds the bound MAX_ITERS.
             // >>>>>>>> CODE IS MISSING
-            n = 0;
-            while (n < MAX_ITERS && x2 + y2 < 4){
+            long n = 0;
+            while (n < MAX_ITERS && x2+y2 < 4){
                 y = 2 * x * y + cy;
                 x = x2 - y2 + cx;
+                // (2 + 3i)^2 = 4 + 2 * 6i - 9;
                 x2 = x*x;
                 y2 = y*y;
 
                 n += 1;
             }
+#pragma omp atomic
             nTotalIterationsCount += n;
             // <<<<<<<< CODE IS MISSING
             // n indicates if the point belongs to the mandelbrot set
             // plot the number of iterations at point (i, j)
             int c = ((long)n * 255) / MAX_ITERS;
             png_plot(pPng, i, j, c, c, c);
-            cx += fDeltaX;
         }
-        cy += fDeltaY;
     }
     unsigned long nTimeEnd = get_time();
 
