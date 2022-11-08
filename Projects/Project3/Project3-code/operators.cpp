@@ -39,8 +39,7 @@ void diffusion(const data::Field &s, data::Field &f)
     for (int j=1; j < jend; j++) {
         for (int i=1; i < iend; i++) {
             //TODO
-            // f(i,j) = ...
-
+            f(i,j) = -(4. + alpha) * s(i,j) + s(i-1,j) + s(i+1,j) + s(i,j-1) + s(i,j+1) + beta*s(i,j) *  (1 - s(i,j)) + alpha*y_old(i,j);
         }
     }
 
@@ -60,6 +59,13 @@ void diffusion(const data::Field &s, data::Field &f)
     {
         int i = 0;
         //TODO
+        for (int j = 1; j < jend; ++j) {
+            f(i,j) = -(4. + alpha) * s(i,j)
+                     + s(i+1,j) + s(i,j-1) + s(i,j+1)
+                     + alpha*y_old(i,j) + bndW[j]
+                     + beta * s(i,j) * (1.0 - s(i,j));
+        }
+
     }
 
     // the north boundary (plus NE and NW corners)
@@ -76,6 +82,14 @@ void diffusion(const data::Field &s, data::Field &f)
 
         // inner north boundary
         //TODO
+        {
+            for (int i = 1; i < iend; ++i) {
+                f(i,j) = -(4. + alpha) * s(i,j)
+                         + s(i+1,j) + s(i,j-1) + s(i-1,j)
+                         + alpha*y_old(i,j) + bndN[i]
+                         + beta * s(i,j) * (1.0 - s(i,j));
+            }
+        }
 
         {
             int i = nx-1; // NE corner
@@ -92,14 +106,22 @@ void diffusion(const data::Field &s, data::Field &f)
 
         {
             int i = 0; // SW corner
-            f(i,j) = -(4. + alpha) * s(i,j)
-                        + s(i+1,j) + s(i,j+1)
-                        + alpha * y_old(i,j) + bndW[j] + bndS[i]
-                        + beta * s(i,j) * (1.0 - s(i,j));
+            f(i, j) = -(4. + alpha) * s(i, j)
+                      + s(i + 1, j) + s(i, j + 1)
+                      + alpha * y_old(i, j) + bndW[j] + bndS[i]
+                      + beta * s(i, j) * (1.0 - s(i, j));
         }
 
         // inner south boundary
         //TODO
+        {
+            for (int i = 1; i < iend; ++i) {
+                f(i,j) = -(4. + alpha) * s(i,j)
+                         + s(i+1,j) + s(i-1,j) + s(i,j+1)
+                         + alpha*y_old(i,j) + bndS[i]
+                         + beta * s(i,j) * (1.0 - s(i,j));
+            }
+        }
 
         {
             int i = nx - 1; // SE corner
