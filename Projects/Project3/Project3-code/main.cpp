@@ -109,7 +109,8 @@ int main(int argc, char* argv[])
 
     std::cout << "========================================================================" << std::endl;
     std::cout << "                      Welcome to mini-stencil!" << std::endl;
-    std::cout << "version   :: Serial C++" << std::endl;
+    std::cout << "version   :: C++ OpenMP" << std::endl;
+    std::cout << "threads   :: " << omp_get_max_threads() << std::endl;
     std::cout << "mesh      :: " << options.nx << " * " << options.nx << " dx = " << options.dx << std::endl;
     std::cout << "time      :: " << nt << " time steps from 0 .. " << options.nt*options.dt << std::endl;;
     std::cout << "iteration :: " << "CG "          << max_cg_iters
@@ -245,7 +246,7 @@ int main(int argc, char* argv[])
               << std::endl;
 
     std::cout << "Goodbye!" << std::endl;
-
+//    std::cout << options.nx << "," << omp_get_max_threads() << "," << timespent << "," << float(iters_cg)/timespent << std::endl;
     return 0;
 }
 

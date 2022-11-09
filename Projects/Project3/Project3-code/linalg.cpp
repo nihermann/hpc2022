@@ -55,6 +55,7 @@ void cg_init(int nx)
 double hpc_dot(Field const& x, Field const& y, const int N)
 {
     double result = 0;
+    // made it slower
 //    auto DOUBLES_IN_AVX_REG = 4u;
 //    int vectorizable_samples = (N / DOUBLES_IN_AVX_REG) * DOUBLES_IN_AVX_REG;
 #pragma omp parallel for reduction(+: result)
@@ -116,10 +117,23 @@ void hpc_fill(Field& x, const double value, const int N)
 void hpc_axpy(Field& y, const double alpha, Field const& x, const int N)
 {
     //TODO
-#pragma omp parallel for
-    for (int i = 0; i < N; ++i) {
+    __m256d _alpha = _mm256_set1_pd(alpha);
+    __m256d _x, _y;
+#pragma omp parallel for private(_x, _y)
+    for (int i = 0; i < (N/4)*4; i += 4) {
+        _x = _mm256_loadu_pd(x.data() + i);
+        _y = _mm256_loadu_pd(y.data() + i);
+        _y = _mm256_fmadd_pd(_x, _alpha, _y);
+        _mm256_storeu_pd(y.data()+i, _y);
+    }
+
+    for (int i = (N/4)*4; i < N; ++i) {
         y[i] += alpha * x[i];
     }
+//#pragma omp parallel for
+//    for (int i = 0; i < N; ++i) {
+//        y[i] += alpha * x[i];
+//    }
 }
 
 // computes y = x + alpha*(l-r)
@@ -129,8 +143,19 @@ void hpc_add_scaled_diff(Field& y, Field const& x, const double alpha,
     Field const& l, Field const& r, const int N)
 {
     //TODO
+    __m256d _alpha = _mm256_set1_pd(alpha);
+
 #pragma omp parallel for
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < (N/4)*4; i += 4) {
+        auto _l = _mm256_loadu_pd(l.data()+i);
+        auto _r = _mm256_loadu_pd(r.data()+i);
+        auto _x = _mm256_loadu_pd(x.data()+i);
+
+        auto _y = _mm256_fmadd_pd(_alpha, _mm256_sub_pd(_l, _r), _x);
+        _mm256_storeu_pd(y.data()+i, _y);
+    }
+
+    for (int i = (N/4)*4; i < N; ++i) {
         y[i] = x[i] + alpha * (l[i]-r[i]);
     }
 }
@@ -142,8 +167,18 @@ void hpc_scaled_diff(Field& y, const double alpha,
     Field const& l, Field const& r, const int N)
 {
     //TODO
+    __m256d _alpha = _mm256_set1_pd(alpha);
+
 #pragma omp parallel for
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < (N/4)*4; i += 4) {
+        auto _l = _mm256_loadu_pd(l.data()+i);
+        auto _r = _mm256_loadu_pd(r.data()+i);
+        auto _y = _mm256_mul_pd(_alpha, _mm256_sub_pd(_l, _r));
+
+        _mm256_storeu_pd(y.data()+i, _y);
+    }
+
+    for (int i = (N/4)*4; i < N; ++i) {
         y[i] = alpha*(l[i]-r[i]);
     }
 }
@@ -154,8 +189,16 @@ void hpc_scaled_diff(Field& y, const double alpha,
 void hpc_scale(Field& y, const double alpha, Field const& x, const int N)
 {
     //TODO
+    __m256d _alpha = _mm256_set1_pd(alpha);
+
 #pragma omp parallel for
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < (N/4)*4; i += 4) {
+
+        auto _x = _mm256_loadu_pd(x.data()+i);
+        _mm256_storeu_pd(y.data()+i, _mm256_mul_pd(_x, _alpha));
+
+    }
+    for (int i = (N/4)*4; i < N; ++i) {
         y[i] = alpha * x[i];
     }
 }
@@ -167,6 +210,22 @@ void hpc_lcomb(Field& y, const double alpha, Field const& x, const double beta,
     Field const& z, const int N)
 {
     //TODO
+    // (made it slower)
+//    __m256d _alpha = _mm256_set1_pd(alpha);
+//    __m256d _beta = _mm256_set1_pd(beta);
+//
+//#pragma omp parallel for
+//    for (int i = 0; i < (N/4)*4; ++i) {
+//        auto _x = _mm256_loadu_pd(x.data()+i);
+//        auto _z = _mm256_loadu_pd(z.data()+i);
+//        _mm256_storeu_pd(
+//                y.data()+i,
+//                _mm256_fmadd_pd(_x, _alpha, _mm256_mul_pd(_z, _beta)));
+//    }
+//
+//    for (int i = (N/4)*4; i < N; ++i) {
+//        y[i] = alpha*x[i] + beta*z[i];
+//    }
 #pragma omp parallel for
     for (int i = 0; i < N; ++i) {
         y[i] = alpha*x[i] + beta*z[i];

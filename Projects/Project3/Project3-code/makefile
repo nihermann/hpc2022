@@ -36,13 +36,16 @@ data.o: data.cpp data.h
 	$(CXX) $(CXXFLAGS) $(IFLAGS) -c data.cpp -o data.o
 
 operators.o: operators.cpp operators.h
-	$(CXX) $(CXXFLAGS) $(IFLAGS) -c operators.cpp -o operators.o
+	$(CXX) $(CXXFLAGS) $(IFLAGS) -c operators.cpp -o operators.o -mavx -march=native
 
 linalg.o: linalg.cpp linalg.h
-	$(CXX) $(CXXFLAGS) $(IFLAGS) -c linalg.cpp -o linalg.o
+	$(CXX) $(CXXFLAGS) $(IFLAGS) -c linalg.cpp -o linalg.o -mavx -march=native
 
 main: $(OBJ) main.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) *.o main.cpp -o main
+
+#avx: $(OBJ) main.cpp $(HEADERS)
+#	$(CXX) $(CXXFLAGS) *.o main.cpp -o main
 
 clean:
 	rm -f main

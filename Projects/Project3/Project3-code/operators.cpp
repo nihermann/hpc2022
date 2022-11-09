@@ -6,10 +6,12 @@
 
 // Description: Contains simple operators which can be used on 3d-meshes
 
+#include <iostream>
 #include "data.h"
 #include "operators.h"
 #include "stats.h"
 #include "omp.h"
+#include "immintrin.h"
 
 namespace operators {
 
@@ -37,11 +39,53 @@ void diffusion(const data::Field &s, data::Field &f)
     int jend  = nx - 1;
 
     // the interior grid points
+    // make all constants
+    __m256d _four, _one, _mFourPlusAlpha, _alpha, _beta;
+    _four = _mm256_set1_pd(4);
+    _one = _mm256_set1_pd(1);
+    _mFourPlusAlpha = _mm256_set1_pd(-4+alpha);
+    _alpha = _mm256_set1_pd(alpha);
+    _beta = _mm256_set1_pd(beta);
+
 #pragma omp parallel for collapse(2)
     for (int j=1; j < jend; j++) {
-        for (int i=1; i < iend; i++) {
+        for (int i=1; i < iend; ++i) {//i+=4) {
+//            if (i + 4 >= iend){
+//                for (; i < iend; ++i) {
+//                    f(i,j) = -(4. + alpha) * s(i,j) + s(i-1,j) + s(i+1,j)  // (1)
+//                    + s(i,j-1) + s(i,j+1) + beta*s(i,j) *  (1 - s(i,j)) // (2)
+//                    + alpha*y_old(i,j); // (3)
+//                }
+//            }else{
+//
+//                auto _sij = _mm256_loadu_pd(&s(i,j));
+//                auto _yold = _mm256_loadu_pd(&y_old(i,j));
+//                auto _smij = _mm256_loadu_pd(&s(i+1,j));
+//                auto _spij = _mm256_loadu_pd(&s(i+1,j));
+//                auto _simj = _mm256_loadu_pd(&s(i,j-1));
+//                auto _sipj = _mm256_loadu_pd(&s(i,j+1));
+//
+//                auto _eq1 = _mm256_fmadd_pd(
+//                        _mFourPlusAlpha, _sij,
+//                        _mm256_add_pd(_smij, _spij)
+//                        ); // -(4. + alpha) * s(i,j) + s(i-1,j) + s(i+1,j)
+//
+//                auto _betaTsij = _mm256_mul_pd(_beta, _sij);
+//                auto _oneTsij = _mm256_sub_pd(_one, _sij);
+//                auto _eq2 = _mm256_fmadd_pd(
+//                        _betaTsij, _oneTsij,
+//                        _mm256_add_pd(_simj, _sipj)
+//                        ); // s(i,j-1) + s(i,j+1) + beta*s(i,j) *  (1 - s(i,j))
+//                auto _eq3Peq2 = _mm256_fmadd_pd(_alpha, _yold, _eq2);
+//                auto _res = _mm256_add_pd(_eq1, _eq3Peq2);
+//
+//                _mm256_storeu_pd(&f(i,j), _res);
+//            }
+
             //TODO
-            f(i,j) = -(4. + alpha) * s(i,j) + s(i-1,j) + s(i+1,j) + s(i,j-1) + s(i,j+1) + beta*s(i,j) *  (1 - s(i,j)) + alpha*y_old(i,j);
+            f(i,j) = -(4. + alpha) * s(i,j) + s(i-1,j) + s(i+1,j)  // eq (1)
+                    + s(i,j-1) + s(i,j+1) + beta*s(i,j) *  (1 - s(i,j)) // eq (2)
+                    + alpha*y_old(i,j); // eq (3)
         }
     }
 
