@@ -36,8 +36,8 @@ int main (int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 
-    right = -1;/* get rank of neighbor to your right */
-    left  = -1;/* get rank of neighbor to your left */
+    right = my_rank == size-1? 0 : my_rank + 1;/* get rank of neighbor to your right */
+    left  = my_rank == 0? size -1 : my_rank - 1;/* get rank of neighbor to your left */
 
     /* Implement ring addition code
      * do not use if (rank == 0) .. else ..
@@ -45,6 +45,15 @@ int main (int argc, char *argv[])
      * it receives from that neighbor, this is done n times with n = number of processes
      * all ranks will obtain the sum.
      */
+    snd_buf = my_rank;
+    sum = 0;
+    for (int i = 0; i < size; ++i) {
+        MPI_Sendrecv(&snd_buf, 1, MPI_INT, right, right,
+                     &rcv_buf, 1, MPI_INT, left, my_rank, MPI_COMM_WORLD, &status);
+        sum += rcv_buf;
+        snd_buf = rcv_buf;
+
+    }
 
     printf ("Process %i:\tSum = %i\n", my_rank, sum);
 
