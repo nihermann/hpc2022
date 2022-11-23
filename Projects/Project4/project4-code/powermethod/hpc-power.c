@@ -43,6 +43,9 @@ double* hpc_generateMatrix(int n, int startrow, int numrows) {
 
 		A[i * n + diag] = n;
 	}
+//    for (int i = 0; i < n * numrows; ++i) {
+//        A[i] = 1;
+//    }
 
 	return A;
 }
