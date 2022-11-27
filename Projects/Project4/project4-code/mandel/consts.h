@@ -78,7 +78,7 @@ Partition updatePartition(Partition p_old, int mpi_rank)
     p.ny = p_old.ny;
     p.nx = p_old.nx;
     p.comm = p_old.comm;
-    
+
     // TODO: update the coordinates in the cartesian grid (p.x, p.y) for given mpi_rank, see MPI_Cart_coords()
     int coords[2] = {0, 0};
     MPI_Cart_coords(p.comm, mpi_rank, 2, coords);

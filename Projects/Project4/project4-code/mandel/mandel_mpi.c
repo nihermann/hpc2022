@@ -34,7 +34,7 @@ int main (int argc, char** argv)
 
 	// Compute the local domain size and boundaries
 	// determine 2D dimensions of the local portion of the image
-	Domain d = createDomain(p); 
+	Domain d = createDomain(p);
 
 	if(mpi_rank == 0) printf("Processor grid size (%d, %d)\n", p.nx, p.ny);
 	printf("[Process %d]: Coordinates [%d, %d]\n", mpi_rank, p.x, p.y);
@@ -73,7 +73,7 @@ int main (int argc, char** argv)
 	long nTotalIterationsCount = 0;
 	long i, j;
 	unsigned long nTimeStart = get_time ();
-	
+
 	cy = MIN_Y + d.starty*fDeltaY;
 	for (j = 0; j < d.ny; j++) // HEIGHT
 	{
@@ -82,10 +82,10 @@ int main (int argc, char** argv)
 		{
 			x = cx;
 			y = cy;
-			
+
 			x2 = x * x;
 			y2 = y * y;
-			
+
 			// compute the orbit z, f(z), f²(z), f³(z), ...
 			// count the iterations until the orbit leaves the circle |z|=2.
 			// stop if the number of iterations exceeds the bound MAX_ITERS.

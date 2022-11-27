@@ -1,6 +1,6 @@
 /*
  *  hpc_power.c
- *  
+ *
  * WE WILL OVERWRITE YOUR COPY OF THIS FILE WITH MY OWN. ANY CHANGES YOU MAKE WILL NOT BE VISIBLE DURING GRADING.
  */
 
@@ -109,4 +109,3 @@ double hpc_timer()
 	return 1.*t.tv_sec + 1.e-9 * t.tv_nsec;
 	#endif
 }
-

@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     // the reordering of ranks) and use it to find your neighboring
     // ranks in all dimensions in a cyclic manner.
     MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &comm_cart);
-    
+
     // TODO: find your top/bottom/left/right neighbor using the new communicator, see MPI_Cart_shift()
     // rank_top, rank_bottom
     // rank_left, rank_right
