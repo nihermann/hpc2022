@@ -66,7 +66,7 @@ double ss_dot(Field const& x, Field const& y)
     //TODO: Reduce the result across all processes
     //Note: the result is needed at all ranks
     //use data::domain.comm_cart
-
+    MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, data::domain.comm_cart);
     return result;
 }
 
@@ -84,6 +84,7 @@ double ss_norm2(Field const& x)
     //TODO: Reduce the result across all processes
     //Note: the result is needed at all ranks
     //use data::domain.comm_cart
+    MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, data::domain.comm_cart);
 
     return sqrt(result);
 }

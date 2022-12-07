@@ -33,6 +33,7 @@ void SubDomain::init(int mpi_rank, int mpi_size, Discretization& discretization)
     // determine the number of subdomains in the x and y dimensions
     int dims[2] = { 0, 0 };
     // TODO: Compute number of partitions in each dimension
+    MPI_Dims_create(mpi_size, 2, dims);
     ndomy = dims[0];
     ndomx = dims[1];
 
@@ -40,16 +41,20 @@ void SubDomain::init(int mpi_rank, int mpi_size, Discretization& discretization)
     int periods[2] = { 0, 0 };
     MPI_Comm comm_cart;
     //TODO: Create the communicator with cartesian topology
+    MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &comm_cart);
     domain.comm_cart = comm_cart;
     
     // retrieve coordinates of the rank in the topology
     int coords[2];
     //TODO: Retrieve coordinates of the process in the cartesian grid
+    MPI_Cart_coords(comm_cart, mpi_rank, 2, coords);
     domy = coords[0]+1;
     domx = coords[1]+1;
 
     // set neighbours for all directions
     //TODO: Determine rank of neighbour_south neighbour_north neighbour_east neighbour_west
+    MPI_Cart_shift(comm_cart, 0, -1, &neighbour_north, &neighbour_south);
+    MPI_Cart_shift(comm_cart, 1, 1, &neighbour_west, &neighbour_east);
 
     // get bounding box
     nx = discretization.nx / ndomx;
@@ -77,7 +82,7 @@ void SubDomain::init(int mpi_rank, int mpi_size, Discretization& discretization)
 // print domain decomposition information to stdout
 void SubDomain::print() {
     for(int i=0; i<size; i++) {
-        if(rank == i) {
+        if(rank == i && false) {
             std::cout << "rank " << rank << "/" << size
                       << " : (" << domx << "," << domy << ")"
                       << " neigh N:S " << neighbour_north << ":" << neighbour_south

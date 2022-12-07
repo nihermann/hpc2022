@@ -139,9 +139,12 @@ int main(int argc, char* argv[])
 
     //TODO:  initialize MPI
     int thread_level;
+    MPI_Init(&argc, &argv);
 
     //TODO: get rank and the number of ranks
     int mpi_rank, mpi_size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
     // initialize subdomain
     domain.init(mpi_rank, mpi_size, options);
@@ -157,7 +160,7 @@ int main(int argc, char* argv[])
     int max_newton_iters = 50;
     double tolerance     = 1.e-6;
 
-    if( domain.rank == 0 ) {
+    if( domain.rank == 0 && false) {
         std::cout << "========================================================================" << std::endl;
         std::cout << "                      Welcome to mini-stencil!" << std::endl;
         std::cout << "version   :: OpenMP with MPI : " << domain.size << " MPI ranks" << std::endl;
@@ -207,7 +210,6 @@ int main(int argc, char* argv[])
                 x_new(i-domain.startx+1, j-domain.starty+1) = 0.1;
         }
     }
-
     flops_bc = 0;
     flops_diff = 0;
     flops_blas1 = 0;
@@ -242,7 +244,6 @@ int main(int argc, char* argv[])
             // solve linear system to get -deltax
             bool cg_converged = false;
             ss_cg(deltax, b, max_cg_iters, tolerance, cg_converged);
-
             // check that the CG solver converged
             if (!cg_converged) break;
 
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
         #endif
 
         // output some statistics
-        if (converged && verbose_output) {
+        if (converged && verbose_output && false) {
             std::cout << "step " << timestep
                       << " required " << it
                       << " iterations for residual " << residual
@@ -283,7 +284,7 @@ int main(int argc, char* argv[])
     write_binary("output.bin", x_old, domain, options);
 
     // metadata
-    if( domain.rank==0 ) {
+    if( domain.rank==0 && false) {
         std::ofstream fid("output.bov");
         fid << "TIME: 0.0" << std::endl;
         fid << "DATA_FILE: output.bin" << std::endl;
@@ -296,7 +297,7 @@ int main(int argc, char* argv[])
     }
 
     // print table sumarizing results
-    if(domain.rank == 0) {
+    if(domain.rank == 0 && false) {
         std::cout << "--------------------------------------------------------------------------------"
                   << std::endl;
         std::cout << "simulation took " << timespent << " seconds" << std::endl;
@@ -308,10 +309,13 @@ int main(int argc, char* argv[])
     }
 
     if(domain.rank==0)
-        std::cout << "Goodbye!" << std::endl;
+        std::cout << options.nx << "," << omp_get_max_threads() << "," << timespent << "," << mpi_size << std::endl;
+
+    //std::cout << "Goodbye!" << std::endl;
 
     //TODO: Finalize MPI
-
+    MPI_Comm_free(&domain.comm_cart);
+    MPI_Finalize();
     return 0;
 }
 

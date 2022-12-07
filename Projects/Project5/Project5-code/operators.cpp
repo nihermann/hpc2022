@@ -55,7 +55,7 @@ void diffusion(const data::Field &U, data::Field &S)
 
         // pack north buffer
         for(int i=0; i<nx; i++)
-            buffN[i] = U(i,ny-1);
+            buffN[i] = U(i,ny-1);//U(i, 0);
 
         // post send
         MPI_Isend(&buffN[0], nx, MPI_DOUBLE, domain.neighbour_north, domain.rank,
@@ -65,14 +65,47 @@ void diffusion(const data::Field &U, data::Field &S)
 
     if(domain.neighbour_south>=0) {
         //TODO
+        MPI_Irecv(&bndS[0], nx, MPI_DOUBLE, domain.neighbour_south, domain.neighbour_south,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        for (int i = 0; i < nx; ++i) {
+            buffS[i] = U(i, 0);
+        }
+
+        MPI_Isend(&buffS[0], nx, MPI_DOUBLE, domain.neighbour_south, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
 
     if(domain.neighbour_east>=0) {
         //TODO
+        MPI_Irecv(&bndE[0], ny, MPI_DOUBLE, domain.neighbour_east, domain.neighbour_east,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        for (int i = 0; i < ny; ++i) {
+            buffE[i] = U(nx-1, i);
+        }
+
+        MPI_Isend(&buffE[0], ny, MPI_DOUBLE, domain.neighbour_east, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
 
     if(domain.neighbour_west>=0) {
         //TODO
+        MPI_Irecv(&bndW[0], ny, MPI_DOUBLE, domain.neighbour_west, domain.neighbour_west,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        for (int i = 0; i < ny; ++i) {
+            buffW[i] = U(0, i);
+        }
+
+        MPI_Isend(&buffW[0], ny, MPI_DOUBLE, domain.neighbour_west, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
 
     //TODO: Somewhere in the remaining code below we need to wait for the async transfers to finish
@@ -88,7 +121,7 @@ void diffusion(const data::Field &U, data::Field &S)
                                     + dxs * U(i,j) * (1.0 - U(i,j));
         }
     }
-
+    MPI_Waitall(num_requests, requests, statuses);
     // the east boundary
     {
         int i = nx - 1;
