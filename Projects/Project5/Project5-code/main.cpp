@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     int max_newton_iters = 50;
     double tolerance     = 1.e-6;
 
-    if( domain.rank == 0 && false) {
+    if( domain.rank == 0) {
         std::cout << "========================================================================" << std::endl;
         std::cout << "                      Welcome to mini-stencil!" << std::endl;
         std::cout << "version   :: OpenMP with MPI : " << domain.size << " MPI ranks" << std::endl;
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         #endif
 
         // output some statistics
-        if (converged && verbose_output && false) {
+        if (converged && verbose_output) {
             std::cout << "step " << timestep
                       << " required " << it
                       << " iterations for residual " << residual
@@ -284,7 +284,7 @@ int main(int argc, char* argv[])
     write_binary("output.bin", x_old, domain, options);
 
     // metadata
-    if( domain.rank==0 && false) {
+    if( domain.rank==0) {
         std::ofstream fid("output.bov");
         fid << "TIME: 0.0" << std::endl;
         fid << "DATA_FILE: output.bin" << std::endl;
@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
     }
 
     // print table sumarizing results
-    if(domain.rank == 0 && false) {
+    if(domain.rank == 0) {
         std::cout << "--------------------------------------------------------------------------------"
                   << std::endl;
         std::cout << "simulation took " << timespent << " seconds" << std::endl;

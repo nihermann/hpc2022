@@ -2,7 +2,7 @@ from plotnine import *
 import pandas as pd
 
 def strong():
-    df = pd.read_csv("data.out")
+    df = pd.read_csv("1.out")
     df = df.astype({"Grid Size": "category", "Ranks": "category"})
     # df2 = pd.DataFrame([
     #     {"Grid Size": 64, "Time": .037},
@@ -11,10 +11,10 @@ def strong():
     #     {"Grid Size": 512, "Time": 12},
     #     {"Grid Size": 1024, "Time": 130}])
     # + geom_hline(data=df2, mapping=aes(yintercept="Time"))\
-    plot = ggplot(df, aes(x="Threads", y="Time", color="Ranks")) + facet_wrap("Grid Size", nrow=2, scales="free") \
+    plot = ggplot(df, aes(x="Threads", y="Time", color="Grid Size")) + facet_wrap("Ranks", nrow=2, scales="free") \
            + geom_line()\
            + theme(subplots_adjust={'wspace': 0.25, 'hspace': .25})
-    plot.save("strong_scaling.png")
+    plot.save("strong_scaling4.png")
 
 
 if __name__ == '__main__':

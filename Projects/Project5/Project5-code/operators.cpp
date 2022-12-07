@@ -55,7 +55,7 @@ void diffusion(const data::Field &U, data::Field &S)
 
         // pack north buffer
         for(int i=0; i<nx; i++)
-            buffN[i] = U(i,ny-1);//U(i, 0);
+            buffN[i] = U(i,ny-1);
 
         // post send
         MPI_Isend(&buffN[0], nx, MPI_DOUBLE, domain.neighbour_north, domain.rank,
