@@ -13,11 +13,12 @@ function [part1,part2] = bisection_spectral(A,xy,picture)
 
 
 
-% disp(' ');
-% disp(' HPC Lab at USI:   ');
-% disp(' Implement spectral bisection');
-% disp(' ');
+disp(' ');
+disp(' HPC Lab at USI:   ');
+disp(' Implement spectral bisection');
+disp(' ');
 
+%A = [0, .1, 0, .2; .1, 0, .4, .7; 0, .4, 0, .8; .2, .7, .8, 0];
 % Steps
 % 1. Construct the Laplacian.
 sums = sum(A);
@@ -31,29 +32,29 @@ end
 % take the index of second smallest eigenvalue to get the corresponding
 % eigenvector that we want.
 u = Vecs(:, 2);
-
+disp("");
 % 3. Label the vertices with the components of the Fiedler vector.
-[part1, part2] = other(u < 0);
+[part1, part2] = other(u > 0)
 
 % 4. Partition them around their median value, or 0.
 if picture == 1
     gplotpart(A,xy,part1);
-    title('Spectral bisection using the Fiedler Eigenvector');
+    title('Spectral bisection (dummy) using the Fiedler Eigenvector');
 end
 
 
 
 % <<<< Dummy implementation to generate a partitioning
-% n = size(A,1);
-% map = zeros(n,1);
-% map(1:round((n/2))) = 0; 
-% map((round((n/2))+1):n) = 1;
-% [part1,part2] = other(map);
-% 
-% if picture == 1
-%     gplotpart(A,xy,part1);
-%     title('Spectral bisection (dummy) using the Fiedler Eigenvector');
-% end
+n = size(A,1);
+map = zeros(n,1);
+map(1:round((n/2))) = 0; 
+map((round((n/2))+1):n) = 1;
+[part1,part2] = other(map);
+
+if picture == 1
+    gplotpart(A,xy,part1);
+    title('Spectral bisection (dummy) using the Fiedler Eigenvector');
+end
 
 % Dummy implementation to generate a partitioning >>>>
 

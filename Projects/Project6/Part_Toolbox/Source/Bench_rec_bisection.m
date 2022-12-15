@@ -69,15 +69,50 @@ for c = 1:nc
     W      = params.Adj;
     coords = params.coords;
     % 2. Recursive routines
-    % i. Spectral    
+    % i. Spectral
+    [map_s,~,~] = rec_bisection("bisection_spectral", 3, W, coords, 0);
+    [map_s4,~,~] = rec_bisection("bisection_spectral", 4, W, coords, 0);
+    
     % ii. Metis
-    % iii. Coordinate    
+    [map_m, ~, ~] = rec_bisection("bisection_metis", 3, W, coords, 0);
+    [map_m4, ~, ~] = rec_bisection("bisection_metis", 4, W, coords, 0);
+
+    % iii. Coordinate
+    [map_c, ~, ~] = rec_bisection("bisection_coordinate", 3, W, coords, 0);   
+    [map_c4, ~, ~] = rec_bisection("bisection_coordinate", 4, W, coords, 0);    
+
     % iv. Inertial
+    [map_i, ~, ~] = rec_bisection("bisection_inertial", 3, W, coords, 0);
+    [map_i4, ~, ~] = rec_bisection("bisection_inertial", 4, W, coords, 0);
+
     % 3. Calculate number of cut edges
+    [cut_spectral] = cutsize(W,map_s);
+    [cut_spectral4] = cutsize(W,map_s4);
+    [cut_metis] = cutsize(W,map_m);
+    [cut_metis4] = cutsize(W,map_m4);
+    [cut_coord] = cutsize(W,map_c);
+    [cut_coord4] = cutsize(W,map_c4);
+    [cut_inertial] = cutsize(W,map_i);
+    [cut_inertial4] = cutsize(W,map_i4);
     % 4. Visualize the partitioning result
+    if strcmp(cases{c}, 'crack.mat')
+        figure();
+        gplotmap(W, coords, map_s4);
+        title("Spectral");
+        
+        figure();
+        gplotmap(W, coords, map_m4);
+        title("Metis");
+
+        figure();
+        gplotmap(W, coords, map_c4);
+        title("Coordinates");
+
+        figure();
+        gplotmap(W, coords, map_i4);
+        title("Inertial");
+    end
     
-    
-    fprintf('%6d %6d %10d %6d %10d %6d %10d %6d\n',0,0,...
-    0,0,0,0,0,0);
+    fprintf('%6d %6d %10d %6d %10d %6d %10d %6d\n',cut_spectral,cut_spectral4,cut_metis,cut_metis4,cut_coord,cut_coord4,cut_inertial,cut_inertial4);
     
 end
