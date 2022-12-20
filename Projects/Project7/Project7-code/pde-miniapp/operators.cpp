@@ -49,18 +49,84 @@ void diffusion(const data::Field &s, data::Field &f)
     // TODO exchange the ghost cells
     // try overlapping computation and communication
     // by using  MPI_Irecv and MPI_Isend.
+//    if(domain.neighbour_north>=0) {
+//        // ...
+//    }
+//
+//    if(domain.neighbour_south>=0) {
+//       // ...
+//    }
+//    if(domain.neighbour_east>=0) {
+//      // ...
+//    }
+//    if(domain.neighbour_west>=0) {
+//      // ...
+//    }
+    MPI_Comm comm_cart = domain.comm_cart;
+    MPI_Status statuses[8];
+    MPI_Request requests[8];
+    int num_requests = 0;
+
     if(domain.neighbour_north>=0) {
-        // ...
+        // set tag to be the sender's rank
+        // post receive
+        MPI_Irecv(&bndN[0], nx, MPI_DOUBLE, domain.neighbour_north, domain.neighbour_north,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        // pack north buffer
+        for(int i=0; i<nx; i++)
+            buffN[i] = s(i,ny-1);
+
+        // post send
+        MPI_Isend(&buffN[0], nx, MPI_DOUBLE, domain.neighbour_north, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
 
     if(domain.neighbour_south>=0) {
-       // ...
+        //TODO
+        MPI_Irecv(&bndS[0], nx, MPI_DOUBLE, domain.neighbour_south, domain.neighbour_south,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        for (int i = 0; i < nx; ++i) {
+            buffS[i] = s(i, 0);
+        }
+
+        MPI_Isend(&buffS[0], nx, MPI_DOUBLE, domain.neighbour_south, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
+
     if(domain.neighbour_east>=0) {
-      // ...
+        //TODO
+        MPI_Irecv(&bndE[0], ny, MPI_DOUBLE, domain.neighbour_east, domain.neighbour_east,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        for (int i = 0; i < ny; ++i) {
+            buffE[i] = s(nx-1, i);
+        }
+
+        MPI_Isend(&buffE[0], ny, MPI_DOUBLE, domain.neighbour_east, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
+
     if(domain.neighbour_west>=0) {
-      // ...
+        //TODO
+        MPI_Irecv(&bndW[0], ny, MPI_DOUBLE, domain.neighbour_west, domain.neighbour_west,
+                  comm_cart, requests+num_requests);
+        num_requests++;
+
+        for (int i = 0; i < ny; ++i) {
+            buffW[i] = s(0, i);
+        }
+
+        MPI_Isend(&buffW[0], ny, MPI_DOUBLE, domain.neighbour_west, domain.rank,
+                  comm_cart, requests+num_requests);
+        num_requests++;
     }
 
     // the interior grid points
@@ -76,7 +142,7 @@ void diffusion(const data::Field &s, data::Field &f)
 
     // TODO: wait on the receives from the outstanding MPI_Irecv using MPI_Waitall.
     // ...
-
+    MPI_Waitall(num_requests, requests, statuses);
     // the east boundary
     {
         int i = nx - 1;

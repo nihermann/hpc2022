@@ -136,9 +136,12 @@ int main(int argc, char* argv[])
     readcmdline(options, argc, argv);
 
     // initialize MPI
+    MPI_Init(&argc, &argv);
     int mpi_rank, mpi_size, threadLevelProvided;
     // TODO initialize
     // use "MPI_Comm_size", "MPI_Comm_rank" and "MPI_Init_thread"
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
     // initialize subdomain
     domain.init(mpi_rank, mpi_size, options);
@@ -301,6 +304,8 @@ int main(int argc, char* argv[])
         std::cout << "Goodbye!" << std::endl;
 
     // TODO finalize it using "MPI_Finalize" and "MPI_Comm_free"
+    MPI_Comm_free(&domain.comm_cart);
+    MPI_Finalize();
 
     return 0;
 }
