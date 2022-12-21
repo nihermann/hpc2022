@@ -1,4 +1,3 @@
-print("Starting script")
 from mandelbrot_task import *
 import matplotlib as mpl
 mpl.use('Agg')
@@ -30,32 +29,31 @@ def manager(comm, tasks):
     -------
     ... ToDo ...
     """
+    global TasksDoneByWorker
 
     # send initial tasks
     for i in range(1, comm.Get_size()):
         comm.isend(tasks[i-1], dest=i, tag=TAG_TASK)
 
-    buffers = [0] * (comm.Get_size()-1)
+    # buff_size = lambda t: sys.getsizeof(t) + (t._nx_local + 1) * t._ny_local
     finished_tasks = []
     TasksDoneByWorker = [0] * comm.Get_size()
 
-    recv_reqs = [comm.irecv(buffers[i-1], source=i, tag=TAG_TASK_DONE) for i in range(1, comm.Get_size())]
-
+    status = MPI.Status()
     # ignore tasks that were already send
     for task in tasks[comm.Get_size()-1:]:
-        done_idx, _ = MPI.Request.waitany(recv_reqs)
-        print(f"Task finished by worker {done_idx}")
-        TasksDoneByWorker[done_idx+1] += 1
+        finished_tasks.append(
+            comm.recv(source=MPI.ANY_SOURCE, tag=TAG_TASK_DONE, status=status))
+        done_rank = status.Get_source()
 
-        finished_tasks.append(buffers[done_idx])
-        comm.isend(task, dest=done_idx, tag=TAG_TASK)
-        recv_reqs[done_idx] = comm.irecv(buffers[done_idx], source=done_idx, tag=TAG_TASK_DONE)
-    print("All task distributed")
+        TasksDoneByWorker[done_rank] += 1
+        comm.isend(task, dest=done_rank, tag=TAG_TASK)
+
     # wait until the last tasks finished
-    finished_tasks += MPI.Request.waitall(recv_reqs)
-    # signal workers that there are no more tasks left
-    send_done_reqs = [comm.isend(TAG_DONE, dest=i, tag=TAG_TASK) for i in range(1, comm.Get_size())]
-    MPI.Request.Waitall(send_done_reqs)
+    for _ in range(1, comm.Get_size()):
+        finished_tasks.append(comm.recv(source=MPI.ANY_SOURCE, tag=TAG_TASK_DONE, status=status))
+        # signal workers that there are no more tasks left
+        comm.send(TAG_DONE, dest=status.Get_source(), tag=TAG_TASK)
 
     return finished_tasks
 
@@ -72,16 +70,13 @@ def worker(comm):
     """
     while True:
         task = comm.recv(source=MANAGER, tag=TAG_TASK)
-        print(f"Rank {comm.Get_rank()} received task {task}.")
 
         if task == TAG_DONE:
             break
 
         task.do_work()
 
-        print(f"Rank {comm.Get_rank()} completed task and is sending results back.")
-        comm.send(task, dest=MANAGER, tag=TAG_TASK_DONE)
-
+        comm.isend(task, dest=MANAGER, tag=TAG_TASK_DONE)
 
 def readcmdline(rank):
     """
@@ -125,7 +120,6 @@ def readcmdline(rank):
 
 
 if __name__ == "__main__":
-    print("Starting")
     # get COMMON WORLD communicator, size & rank
     comm    = MPI.COMM_WORLD
     size    = comm.Get_size()
@@ -163,10 +157,11 @@ if __name__ == "__main__":
 
     # inform that done
     if my_rank == MANAGER:
-        print(f"Run took {timespent:f} seconds")
+        print(f"{size},{ntasks},{timespent}")
+        # print(f"Run took {timespent:f} seconds")
         for i in range(size):
             if i == MANAGER:
                 continue
             print(f"Process {i:5d} has done {TasksDoneByWorker[i]:10d} tasks")
-        print("Done.")
+        # print("Done.")
 
