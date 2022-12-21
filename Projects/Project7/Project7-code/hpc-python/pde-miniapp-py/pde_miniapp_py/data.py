@@ -276,10 +276,31 @@ class Field:
         """Start exchanging boundary field data"""
         domain = self._domain # copy for convenience
         # ... implement ...
+        self.requests = []
+        if domain.neighbour_north >= 0:
+            self.requests.append(domain.comm_cart.Irecv(self.bdryN, source=domain.neighbour_north, tag=domain.neighbour_north))
+            self._buffN = self.inner[:, -1].copy()
+            self.requests.append(domain.comm_cart.Isend(self._buffN, dest=domain.neighbour_north, tag=domain.rank))
+
+        if domain.neighbour_south >= 0:
+            self.requests.append(domain.comm_cart.Irecv(self.bdryS, source=domain.neighbour_south, tag=domain.neighbour_south))
+            self._buffS = self.inner[:, 0].copy()
+            self.requests.append(domain.comm_cart.Isend(self._buffS, dest=domain.neighbour_south, tag=domain.rank))
+
+        if domain.neighbour_east >= 0:
+            self.requests.append(domain.comm_cart.Irecv(self.bdryE, source=domain.neighbour_east, tag=domain.neighbour_east))
+            self._buffE = self.inner[-1, :].copy()
+            self.requests.append(domain.comm_cart.Isend(self._buffE, dest=domain.neighbour_east, tag=domain.rank))
+
+        if domain.neighbour_west >= 0:
+            self.requests.append(domain.comm_cart.Irecv(self.bdryW, source=domain.neighbour_west, tag=domain.neighbour_west))
+            self._buffW = self.inner[0, :].copy()
+            self.requests.append(domain.comm_cart.Isend(self._buffW, dest=domain.neighbour_west, tag=domain.rank))
 
     def exchange_waitall(self):
         """Wait until exchanging boundary field data is complete"""
         # ... implement ...
+        MPI.Request.Waitall(self.requests)
 
     def write_mpiio(self, fname):
         """Write field to file fname with MPI-IO"""

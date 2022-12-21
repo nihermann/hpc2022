@@ -9,12 +9,38 @@ from . import operators
 def hpc_dot(x, y):
     """Computes the inner product of x and y"""
     # ... implement ...
-    return 1.e-10
+    domain = x.domain
+    x, y = x.inner.flatten(), y.inner.flatten()
+
+    # res = 0
+    # for i in range(len(x)):
+    #     res += x[i] * y[i]
+    # buf = domain.comm_cart.allreduce(res, MPI.SUM)
+
+    # fast using numpy
+    res = np.dot(x, y)
+    buf = np.array(0, dtype=res.dtype)
+    domain.comm_cart.Allreduce(res, buf, MPI.SUM)
+
+    return buf
 
 def hpc_norm2(x):
     """Computes the 2-norm of x"""
     # ... implement ...
-    return 1.e-10
+    domain = x.domain
+    x = x.inner.flatten()
+
+    # res = 0
+    # for i in range(len(x)):
+    #     res += x[i] * x[i]
+    # buf = domain.comm_cart.allreduce(res, MPI.SUM)
+
+    # Fast using numpy
+    res = np.dot(x, x)
+    buf = np.array(0, dtype=res.dtype)
+    domain.comm_cart.Allreduce(res, buf, MPI.SUM)
+
+    return np.sqrt(buf)
 
 class hpc_cg:
     """Conjugate gradient solver class: solve the linear system A x = b"""

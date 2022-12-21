@@ -97,7 +97,7 @@ if __name__ == "__main__":
     tolerance = 1.e-6
     skip = 10 # write output every skip time step (or just last if skip < 1)
 
-    if rank == 0:
+    if rank == 0 and False:
         print(80*"=")
         print('{:^80}'.format("Welcome to mini-stencil!"))
         print("version   :: MPI Python")
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         print(80*"=")
 
     # print some domain decomposition specifics
-    domain.print()
+    # domain.print()
 
     # allocate global fields
     s_old  = data.Field(domain)
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     timespent += time.perf_counter()
 
     # print table sumarizing results
-    if domain.rank == 0:
+    if domain.rank == 0 and False:
         print(f"simulation took {timespent:f} seconds")
         print(f"{iters_cg:d} conjugate gradient iterations:",
                "at rate of {:f} iters/second".format(iters_cg/timespent))
@@ -233,5 +233,6 @@ if __name__ == "__main__":
         print(80*"-")
 
     if domain.rank == 0:
-        print("=== End of simulation. Goodbye! ===")
+        print(f"{options.nx},{size},{timespent},{iters_cg/timespent}")
+        # print("=== End of simulation. Goodbye! ===")
 
