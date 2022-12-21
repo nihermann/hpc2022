@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
 
     // initialize subdomain
     domain.init(mpi_rank, mpi_size, options);
-    domain.print();
+//    domain.print();
 
     int nx = domain.nx;
     int ny = domain.ny;
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
     int max_newton_iters = 50;
     double tolerance     = 1.e-6;
 
-    if( domain.rank == 0 ) {
+    if( domain.rank == 0 && false) {
         std::cout << "========================================================================" << std::endl;
         std::cout << "                      Welcome to mini-stencil!" << std::endl;
         std::cout << "version   :: MPI : " << domain.size << " MPI ranks" << std::endl;
@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
     write_binary("output.bin", y_old, domain, options);
 
     // metadata
-    if( domain.rank==0 ) {
+    if( domain.rank==0 && false) {
         std::ofstream fid("output.bov");
         fid << "TIME: 0.0" << std::endl;
         fid << "DATA_FILE: output.bin" << std::endl;
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
     }
 
     // print table sumarizing results
-    if(domain.rank == 0) {
+    if(domain.rank == 0 && false) {
         std::cout << "--------------------------------------------------------------------------------"
                   << std::endl;
         std::cout << "simulation took " << timespent << " seconds" << std::endl;
@@ -301,8 +301,8 @@ int main(int argc, char* argv[])
     }
 
     if(domain.rank==0)
-        std::cout << "Goodbye!" << std::endl;
-
+        std::cout << options.nx << "," << mpi_size << "," << timespent << "," << float(iters_cg)/timespent << std::endl;
+//        std::cout << "Goodbye!" << std::endl;
     // TODO finalize it using "MPI_Finalize" and "MPI_Comm_free"
     MPI_Comm_free(&domain.comm_cart);
     MPI_Finalize();
