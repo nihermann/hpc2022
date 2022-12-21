@@ -53,7 +53,7 @@ def manager(comm, tasks):
     for _ in range(1, comm.Get_size()):
         finished_tasks.append(comm.recv(source=MPI.ANY_SOURCE, tag=TAG_TASK_DONE, status=status))
         # signal workers that there are no more tasks left
-        comm.send(TAG_DONE, dest=status.Get_source(), tag=TAG_TASK)
+        comm.isend(TAG_DONE, dest=status.Get_source(), tag=TAG_TASK)
 
     return finished_tasks
 
